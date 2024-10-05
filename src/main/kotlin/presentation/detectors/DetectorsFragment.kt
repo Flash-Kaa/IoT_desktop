@@ -52,6 +52,16 @@ fun DetectorsFragment(
             fontSize = 22.sp,
         )
 
+        Spacer(Modifier.height(64.dp))
+
+        // Title
+        Text(
+            text = "Devices data",
+            fontSize = 32.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+
         Spacer(Modifier.height(24.dp))
 
         // Delay value

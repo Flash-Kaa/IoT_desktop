@@ -67,7 +67,10 @@ internal class PropertiesInterceptor(
     private fun changeActuatorState(action: ScreenAction.ChangeActuatorState) {
         updateActuatorStateUseCase(action.state)
         updateTemperatureActuatorStateUseCase(TemperatureActuatorState.None)
-        state.value = state.value.copy(actuatorState = action.state)
+        state.value = state.value.copy(
+            actuatorState = action.state,
+            temperatureActuatorState = TemperatureActuatorState.None
+        )
     }
 
     private fun changeActuatorPower(action: ScreenAction.ChangeActuatorPower) {
