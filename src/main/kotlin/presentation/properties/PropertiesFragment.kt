@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,20 +28,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import domain.entity.ActuatorState
-import presentation.ScreenAction
-import presentation.ScreenState
 
 @Composable
 internal fun PropertiesFragment(
-    screenState: MutableState<ScreenState>,
+    screenState: MutableState<PropertiesScreenState>,
     screenAction: (ScreenAction) -> Unit
 ) {
     Column(
         modifier = Modifier.padding(16.dp)
     ) {
+        Text(
+            text = "Data settings",
+            fontSize = 32.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        Spacer(Modifier.height(32.dp))
+
         SlideBar(
             title = "Outside temperature",
             value = screenState.value.outsideTemp
@@ -48,7 +57,7 @@ internal fun PropertiesFragment(
             screenAction(ScreenAction.ChangeOutsideTemperature(it))
         }
 
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(24.dp))
 
         SlideBar(
             title = "Inside temperature",
@@ -57,26 +66,112 @@ internal fun PropertiesFragment(
             screenAction(ScreenAction.ChangeInsideTemperature(it))
         }
 
-        Spacer(Modifier.height(48.dp))
+        Spacer(Modifier.height(16.dp))
+
+        DelaySlider(screenState, screenAction)
+
+        Spacer(Modifier.height(16.dp))
+
+        ActuatorPower(screenState, screenAction)
+
+        Spacer(Modifier.height(16.dp))
+
+        ActuatorSwitch(screenState, screenAction)
+
+        if (screenState.value.actuatorState != ActuatorState.Auto) {
+            Spacer(Modifier.height(16.dp))
+            Switch(screenState, screenAction)
+        }
+    }
+}
+
+@Composable
+private fun ActuatorPower(
+    screenState: MutableState<PropertiesScreenState>,
+    screenAction: (ScreenAction) -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = String.format("Actuator power: ", screenState.value.actuatorPower),
+            fontSize = 22.sp
+        )
+
+        Slider(
+            value = screenState.value.actuatorPower,
+            onValueChange = {
+                screenAction(ScreenAction.ChangeActuatorPower(it))
+            },
+            valueRange = .1f..1f,
+            modifier = Modifier.fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        )
+    }
+}
+
+@Composable
+private fun DelaySlider(
+    screenState: MutableState<PropertiesScreenState>,
+    screenAction: (ScreenAction) -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = String.format("Delay: "),
+            fontSize = 22.sp
+        )
+
+        Slider(
+            value = screenState.value.delay.toFloat(),
+            onValueChange = {
+                screenAction(ScreenAction.ChangeDelay(it.toLong()))
+            },
+            steps = 100,
+            valueRange = 100f..10000f,
+            modifier = Modifier.fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        )
+    }
+}
+
+@Composable
+private fun ActuatorSwitch(
+    screenState: MutableState<PropertiesScreenState>,
+    screenAction: (ScreenAction) -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Actuator:",
+            fontSize = 22.sp
+        )
+
+        Spacer(Modifier.width(16.dp))
 
         Text(
-            text = "Actuator on/off",
+            text = "handle",
             fontSize = 18.sp
         )
+
+        Spacer(Modifier.width(6.dp))
 
         Switch(
             checked = screenState.value.actuatorState == ActuatorState.Auto,
             onCheckedChange = {
                 val state = if (it) ActuatorState.Auto else ActuatorState.Off
-
                 screenAction(ScreenAction.ChangeActuatorState(state))
             }
         )
 
-        if (screenState.value.actuatorState != ActuatorState.Auto) {
-            Spacer(Modifier.height(14.dp))
-            Switch(screenState, screenAction)
-        }
+        Spacer(Modifier.width(6.dp))
+
+        Text(
+            text = "auto",
+            fontSize = 18.sp
+        )
     }
 }
 
@@ -97,7 +192,7 @@ private fun SlideBar(
 
     Text(
         text = title,
-        fontSize = 24.sp
+        fontSize = 22.sp
     )
 
     Slider(
@@ -128,7 +223,7 @@ private fun SlideBar(
 
 @Composable
 private fun Switch(
-    screenState: MutableState<ScreenState>,
+    screenState: MutableState<PropertiesScreenState>,
     screenAction: (ScreenAction) -> Unit
 ) {
     val directionRight = remember { mutableStateOf<Boolean>(false) }
@@ -144,7 +239,7 @@ private fun Switch(
 
     Text(
         text = "Temperature actuator state: ${screenState.value.actuatorState.name}",
-        fontSize = 18.sp
+        fontSize = 22.sp
     )
 
     Spacer(Modifier.height(16.dp))
@@ -154,6 +249,7 @@ private fun Switch(
             .width(130.dp)
             .height(40.dp)
             .background(Color.Gray, shape = CircleShape)
+            .clip(CircleShape)
             .clickable {
                 val state = when (screenState.value.actuatorState) {
                     ActuatorState.Up -> {

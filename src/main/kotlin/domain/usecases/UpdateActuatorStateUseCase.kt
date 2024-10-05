@@ -1,6 +1,6 @@
 package domain.usecases
 
-class ChangeActuatorStateUseCase(
+class UpdateActuatorStateUseCase(
     private val actuator: Any
 ) {
     operator fun invoke(value: Boolean) {}
