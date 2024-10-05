@@ -28,6 +28,7 @@ fun MainActivity() {
         }
 
         Box(modifier = Modifier.weight(2f)) {
+            // Running coroutine with composable coroutine scope
             LaunchedEffect(Unit) {
                 detectInterceptor.startDataCollection(coroutineScope)
             }
