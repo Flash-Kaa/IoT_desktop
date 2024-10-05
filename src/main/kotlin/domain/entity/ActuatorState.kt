@@ -1,5 +1,6 @@
 package domain.entity
 
+// Changing actuator from player or program
 enum class ActuatorState {
-    Up, Down, Off, Auto
+    Handle, Auto
 }

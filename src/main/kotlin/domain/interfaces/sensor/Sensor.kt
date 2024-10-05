@@ -1,11 +1,12 @@
 package domain.interfaces.sensor
 
-import data.Place
+import domain.interfaces.Place
 
+/**
+ * Checking place data
+ */
 abstract class Sensor(
     private val place: Place
 ) {
-    fun getData() = place.getTemperature()
-
-    fun updateData(value: Float) = place.changeTemperature(value)
+    fun getData() = place.temperature
 }

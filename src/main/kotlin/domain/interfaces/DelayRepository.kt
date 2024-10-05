@@ -1,7 +1,8 @@
 package domain.interfaces
 
+/**
+ * Delay storage
+ */
 interface DelayRepository {
-    fun getDelay(): Long
-
-    fun updateDelay(value: Long)
+    var delay: Long
 }

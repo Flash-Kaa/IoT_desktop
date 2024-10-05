@@ -32,7 +32,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import domain.entity.ActuatorState
+import domain.entity.TemperatureActuatorState
 
+/**
+ * UI for update data
+ */
 @Composable
 internal fun PropertiesFragment(
     screenState: MutableState<PropertiesScreenState>,
@@ -41,6 +45,7 @@ internal fun PropertiesFragment(
     Column(
         modifier = Modifier.padding(16.dp)
     ) {
+        // Title
         Text(
             text = "Data settings",
             fontSize = 32.sp,
@@ -50,36 +55,37 @@ internal fun PropertiesFragment(
 
         Spacer(Modifier.height(32.dp))
 
+        // Slider for changing outside temperature
         SlideBar(
             title = "Outside temperature",
-            value = screenState.value.outsideTemp
+            value = screenState.value.outsideTemp,
+            minTemperature = -50f
         ) {
             screenAction(ScreenAction.ChangeOutsideTemperature(it))
         }
 
         Spacer(Modifier.height(24.dp))
 
+        // Slider for changing inside temperature
         SlideBar(
             title = "Inside temperature",
-            value = screenState.value.insideTemp
+            value = screenState.value.insideTemp,
+            minTemperature = -10f
         ) {
             screenAction(ScreenAction.ChangeInsideTemperature(it))
         }
 
-        Spacer(Modifier.height(16.dp))
-
+        // Slider for changing delay
         DelaySlider(screenState, screenAction)
 
-        Spacer(Modifier.height(16.dp))
-
+        // Slider for changing actuator power
         ActuatorPower(screenState, screenAction)
 
-        Spacer(Modifier.height(16.dp))
-
+        // Slider for changing actuator state
         ActuatorSwitch(screenState, screenAction)
 
         if (screenState.value.actuatorState != ActuatorState.Auto) {
-            Spacer(Modifier.height(16.dp))
+            // Custom switch for changing temperature actuator state
             Switch(screenState, screenAction)
         }
     }
@@ -90,6 +96,8 @@ private fun ActuatorPower(
     screenState: MutableState<PropertiesScreenState>,
     screenAction: (ScreenAction) -> Unit
 ) {
+    Spacer(Modifier.height(16.dp))
+
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -115,6 +123,8 @@ private fun DelaySlider(
     screenState: MutableState<PropertiesScreenState>,
     screenAction: (ScreenAction) -> Unit
 ) {
+    Spacer(Modifier.height(16.dp))
+
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -141,9 +151,12 @@ private fun ActuatorSwitch(
     screenState: MutableState<PropertiesScreenState>,
     screenAction: (ScreenAction) -> Unit
 ) {
+    Spacer(Modifier.height(16.dp))
+
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Subtitle
         Text(
             text = "Actuator:",
             fontSize = 22.sp
@@ -151,6 +164,7 @@ private fun ActuatorSwitch(
 
         Spacer(Modifier.width(16.dp))
 
+        // Description start
         Text(
             text = "handle",
             fontSize = 18.sp
@@ -158,16 +172,18 @@ private fun ActuatorSwitch(
 
         Spacer(Modifier.width(6.dp))
 
+        // On/off handle state on actuator
         Switch(
             checked = screenState.value.actuatorState == ActuatorState.Auto,
             onCheckedChange = {
-                val state = if (it) ActuatorState.Auto else ActuatorState.Off
+                val state = if (it) ActuatorState.Auto else ActuatorState.Handle
                 screenAction(ScreenAction.ChangeActuatorState(state))
             }
         )
 
         Spacer(Modifier.width(6.dp))
 
+        // Description end
         Text(
             text = "auto",
             fontSize = 18.sp
@@ -180,31 +196,36 @@ private fun ActuatorSwitch(
 private fun SlideBar(
     title: String,
     value: Float,
+    minTemperature: Float,
     onValueChanged: (Float) -> Unit
 ) {
-    val trackColor = if (value <= 5) {
+    // Track color
+    val trackColor = if (value <= 17) {
         Color(77, 225, 255)
-    } else if (value <= 24) {
+    } else if (value <= 25) {
         Color.Green
     } else {
         Color.Red
     }
 
+    // Subtitle
     Text(
         text = title,
         fontSize = 22.sp
     )
 
+    // Slider
     Slider(
         value = value,
         onValueChange = onValueChanged,
-        valueRange = -10f..40f,
+        valueRange = minTemperature..40f,
         modifier = Modifier.fillMaxWidth()
             .padding(horizontal = 16.dp),
         thumb = {
-            val icon = if (value <= 5) {
+            // Thumb emoji
+                val icon = if (value <= 17) {
                 "❄\uFE0F"
-            } else if (value <= 24) {
+            } else if (value <= 25) {
                 "\uD83D\uDFE2"
             } else {
                 "\uD83D\uDD25"
@@ -226,24 +247,29 @@ private fun Switch(
     screenState: MutableState<PropertiesScreenState>,
     screenAction: (ScreenAction) -> Unit
 ) {
+    Spacer(Modifier.height(16.dp))
+
     val directionRight = remember { mutableStateOf<Boolean>(false) }
 
-    val transition = updateTransition(targetState = screenState.value.actuatorState, label = "switchTransition")
+    // Animation for changing state
+    val transition = updateTransition(targetState = screenState.value.temperatureActuatorState, label = "switchTransition")
     val offset = transition.animateDp(label = "offsetAnimation") { state ->
         when (state) {
-            ActuatorState.Down -> 10.dp
-            ActuatorState.Off -> 40.dp
+            TemperatureActuatorState.Cold -> 10.dp
+            TemperatureActuatorState.None -> 40.dp
             else -> 70.dp
         }
     }
 
+    // Subtitle
     Text(
-        text = "Temperature actuator state: ${screenState.value.actuatorState.name}",
+        text = "Actuator run (cold/none/hot)",
         fontSize = 22.sp
     )
 
     Spacer(Modifier.height(16.dp))
 
+    // Custom switch
     Box(
         modifier = Modifier
             .width(130.dp)
@@ -251,35 +277,44 @@ private fun Switch(
             .background(Color.Gray, shape = CircleShape)
             .clip(CircleShape)
             .clickable {
-                val state = when (screenState.value.actuatorState) {
-                    ActuatorState.Up -> {
+                // Error if now is not handle state
+                if (screenState.value.actuatorState != ActuatorState.Handle) {
+                    return@clickable
+                }
+
+                // Change direction and get state
+                val state = when (screenState.value.temperatureActuatorState) {
+                    TemperatureActuatorState.Hot -> {
                         if (directionRight.value) {
                             directionRight.value = false
                         }
-                        ActuatorState.Off
+                        TemperatureActuatorState.None
                     }
 
-                    ActuatorState.Down -> {
+                    TemperatureActuatorState.Cold -> {
                         if (!directionRight.value) {
                             directionRight.value = true
                         }
 
-                        ActuatorState.Off
+                        TemperatureActuatorState.None
                     }
 
-                    else -> if (!directionRight.value) ActuatorState.Down else ActuatorState.Up
+                    else -> if (!directionRight.value) TemperatureActuatorState.Cold else TemperatureActuatorState.Hot
                 }
 
-                screenAction.invoke(ScreenAction.ChangeActuatorState(state))
+                // Change state
+                screenAction.invoke(ScreenAction.ChangeTemperatureActuatorState(state))
             },
         contentAlignment = Alignment.CenterStart
     ) {
-        val color = when (screenState.value.actuatorState) {
-            ActuatorState.Up -> Color.Red
-            ActuatorState.Down -> Color(77, 225, 255)
+        // Thumb color
+        val color = when (screenState.value.temperatureActuatorState) {
+            TemperatureActuatorState.Hot -> Color.Red
+            TemperatureActuatorState.Cold -> Color(77, 225, 255)
             else -> Color.White
         }
 
+        // Thumb
         Box(
             modifier = Modifier
                 .offset(x = offset.value)

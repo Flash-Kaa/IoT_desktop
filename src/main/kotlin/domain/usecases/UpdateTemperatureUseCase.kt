@@ -1,9 +1,10 @@
 package domain.usecases
 
-import domain.interfaces.sensor.Sensor
+import domain.interfaces.Place
 
 class UpdateTemperatureUseCase(
-    private val sensor: Sensor
+    private val place: Place
 ) {
-    operator fun invoke(value: Float) = sensor.updateData(value)
+    operator fun invoke(value: Float) {
+        place.temperature = value    }
 }

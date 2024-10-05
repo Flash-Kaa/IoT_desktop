@@ -1,10 +1,9 @@
 package domain.usecases
 
 import domain.interfaces.DelayRepository
-import domain.interfaces.actuator.Actuator
 
 class GetDelayUseCase(
-    private val delay: DelayRepository
+    private val repository: DelayRepository
 ) {
-    operator fun invoke() = delay.getDelay()
+    operator fun invoke() = repository.delay
 }

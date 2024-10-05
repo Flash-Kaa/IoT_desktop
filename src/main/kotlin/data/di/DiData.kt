@@ -6,16 +6,24 @@ import data.Room
 import data.Street
 import data.TemperatureSensor
 import domain.interfaces.DelayRepository
-import domain.interfaces.actuator.Actuator
+import domain.interfaces.actuator.TemperatureActuator
 import domain.interfaces.sensor.Sensor
 
+/**
+ * DI substitute
+ */
 object DiData {
-    private val street: Street by lazy { Street() }
-    private val room : Room by lazy { Room(street) }
+    // places
+    val street: Street by lazy { Street() }
+    val room : Room by lazy { Room(street) }
 
+    // Sensors
     val insideSensor: Sensor by lazy { TemperatureSensor(room) }
     val outsideTemperature: Sensor by lazy { TemperatureSensor(street) }
-    val actuator: Actuator by lazy { InsideActuator(room) }
 
+    // Actuators
+    val actuator: TemperatureActuator by lazy { InsideActuator(room) }
+
+    // Other repositories
     val delayRepository: DelayRepository by lazy { DelayRepositoryImpl() }
 }

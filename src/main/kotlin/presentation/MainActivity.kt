@@ -13,6 +13,9 @@ import presentation.properties.PropertiesFragment
 private val propInterceptor = DiUseCases.propertiesInterceptor
 private val detectInterceptor = DiUseCases.detectorsInterceptor
 
+/**
+ * Main screen
+ */
 @Composable
 fun MainActivity() {
     val coroutineScope = rememberCoroutineScope()

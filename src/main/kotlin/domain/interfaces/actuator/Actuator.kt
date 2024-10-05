@@ -1,15 +1,15 @@
 package domain.interfaces.actuator
 
-import data.Place
 import domain.entity.ActuatorState
-import kotlinx.coroutines.flow.Flow
+import domain.interfaces.Place
 
+/**
+ * Actuator for changing place values
+ */
 abstract class Actuator(
-    private val place: Place
+    place: Place
 ) {
-    abstract val actuatorOn: Flow<ActuatorState>
+    abstract var actuatorState: ActuatorState
 
-    abstract fun getPower(): Float
-
-    abstract fun updatePower(value: Float)
+    abstract var power: Float
 }

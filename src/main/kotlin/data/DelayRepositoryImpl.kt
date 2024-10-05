@@ -2,12 +2,9 @@ package data
 
 import domain.interfaces.DelayRepository
 
+/**
+ * data storage for delay value
+ */
 class DelayRepositoryImpl: DelayRepository {
-    private var delay = 1000L
-
-    override fun getDelay() = delay
-
-    override fun updateDelay(value: Long) {
-        delay = value
-    }
+    override var delay = 1000L
 }
