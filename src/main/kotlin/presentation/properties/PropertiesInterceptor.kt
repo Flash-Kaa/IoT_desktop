@@ -12,17 +12,21 @@ import domain.usecases.UpdateDelayUseCase
 import domain.usecases.UpdatePowerUseCase
 import domain.usecases.UpdateTemperatureActuatorStateUseCase
 import domain.usecases.UpdateTemperatureUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * Interceptor to Properties UI for updating data
  */
 internal class PropertiesInterceptor(
-    getInsideTemperatureUseCase: GetTemperatureUseCase,
-    getOutsideTemperatureUseCase: GetTemperatureUseCase,
-    getDelayUseCase: GetDelayUseCase,
-    getPowerUseCase: GetPowerUseCase,
-    getActuatorStateUseCase: GetActuatorStateUseCase,
-    getTemperatureActuatorStateUseCase: GetTemperatureActuatorStateUseCase,
+    private val getActuatorStateUseCase: GetActuatorStateUseCase,
+
+    private val getInsideTemperatureUseCase: GetTemperatureUseCase,
+    private val getOutsideTemperatureUseCase: GetTemperatureUseCase,
+    private val getDelayUseCase: GetDelayUseCase,
+    private val getPowerUseCase: GetPowerUseCase,
+    private val getTemperatureActuatorStateUseCase: GetTemperatureActuatorStateUseCase,
     private val updateInsideTemperatureUseCase: UpdateTemperatureUseCase,
     private val updateOutsideTemperatureUseCase: UpdateTemperatureUseCase,
     private val updateDelayUseCase: UpdateDelayUseCase,
@@ -31,16 +35,38 @@ internal class PropertiesInterceptor(
     private val updateTemperatureActuatorStateUseCase: UpdateTemperatureActuatorStateUseCase
 ) {
     // Properties data
-    val state = mutableStateOf(
-        PropertiesScreenState(
-            insideTemp = getInsideTemperatureUseCase(),
-            outsideTemp = getOutsideTemperatureUseCase(),
-            delay = getDelayUseCase(),
-            actuatorPower = getPowerUseCase(),
-            actuatorState = getActuatorStateUseCase(),
-            temperatureActuatorState = getTemperatureActuatorStateUseCase()
-        )
-    )
+    val state = mutableStateOf(PropertiesScreenState())
+
+    fun startDataCollection(scope: CoroutineScope) {
+        // Running coroutine to update the data
+        scope.launch {
+            // Updating data with temperature readings
+            while (true) {
+                state.value = state.value.copy(
+                    insideTemp = getInsideTemperatureUseCase(),
+                    outsideTemp = getOutsideTemperatureUseCase(),
+                    temperatureActuatorState = getTemperatureActuatorStateUseCase(),
+                    actuatorState = getActuatorStateUseCase()
+                )
+
+                // Delay according to the received time
+                val delayTime = getDelayUseCase()
+                delay(delayTime)
+            }
+        }
+
+        // Running coroutine to update delay and actuator power
+        scope.launch {
+            while (true) {
+                state.value = state.value.copy(
+                    delay = getDelayUseCase(),
+                    actuatorPower = getPowerUseCase()
+                )
+
+                delay(150L)
+            }
+        }
+    }
 
     // Action interceptor
     fun getAction(action: ScreenAction) {

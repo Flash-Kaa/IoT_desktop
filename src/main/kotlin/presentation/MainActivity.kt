@@ -21,6 +21,11 @@ fun MainActivity() {
     val coroutineScope = rememberCoroutineScope()
     Row {
         Box(modifier = Modifier.weight(3f)) {
+            // Running coroutine with composable coroutine scope
+            LaunchedEffect(Unit) {
+                propInterceptor.startDataCollection(coroutineScope)
+            }
+
             PropertiesFragment(
                 screenState = propInterceptor.state,
                 screenAction = propInterceptor::getAction

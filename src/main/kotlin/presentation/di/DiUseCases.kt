@@ -1,6 +1,7 @@
 package presentation.di
 
 import data.di.DiData
+import data.mqtt.RequestMQTT
 import domain.usecases.GetActuatorStateUseCase
 import domain.usecases.GetDelayUseCase
 import domain.usecases.GetPowerUseCase
@@ -64,7 +65,6 @@ internal object DiUseCases {
         UpdateTemperatureActuatorStateUseCase(DiData.actuator)
     }
 
-
     val propertiesInterceptor: PropertiesInterceptor by lazy {
         PropertiesInterceptor(
             getPowerUseCase = getPowerUseCase,
@@ -91,4 +91,14 @@ internal object DiUseCases {
             getTemperatureActuatorStateUseCase = getTemperatureActuatorStateUseCase
         )
     }
+
+    // Mqtt
+    val mqtt = RequestMQTT(
+        temperatureActuator = DiData.actuator,
+        getDelayUseCase = getDelayUseCase,
+        getTemperatureActuatorStateUseCase = getTemperatureActuatorStateUseCase,
+        getActuatorStateUseCase = getActuatorStateUseCase,
+        getInsideTemperatureUseCase = getInsideTemperatureUseCase,
+        getOutsideTemperatureUseCase = getOutsideTemperatureUseCase,
+    )
 }

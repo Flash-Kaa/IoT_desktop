@@ -15,7 +15,7 @@ import domain.interfaces.sensor.Sensor
 object DiData {
     // places
     val street: Street by lazy { Street() }
-    val room : Room by lazy { Room(street) }
+    val room: Room by lazy { Room(street) }
 
     // Sensors
     val insideSensor: Sensor by lazy { TemperatureSensor(room) }
