@@ -13,4 +13,5 @@ pluginManagement {
     }
 }
 
-rootProject.name = "IoT_Lab1"
+rootProject.name = "IoT_Lab"
+include("desktop")

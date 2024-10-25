@@ -18,7 +18,7 @@ repositories {
 dependencies {
     // design library
     implementation(compose.desktop.currentOs)
-    implementation("org.jetbrains.compose.material3:material3-desktop:1.6.11")
+    implementation("org.jetbrains.compose.material3:material3-desktop:1.6.10")
     implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
 }
 
@@ -27,7 +27,7 @@ compose.desktop {
         mainClass = "ApplicationKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
             packageName = "IoT_Lab1"
             packageVersion = "1.0.0"
         }
