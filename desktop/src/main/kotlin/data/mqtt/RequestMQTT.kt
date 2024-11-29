@@ -27,8 +27,8 @@ class RequestMQTT(
     getInsideTemperatureUseCase: GetTemperatureUseCase,
     getOutsideTemperatureUseCase: GetTemperatureUseCase,
 ) {
-    private val brokerUrl = "tcp://localhost:1883"
-    private val client = MqttClient(brokerUrl, "KotlinClient").apply {
+    private val brokerUrl = "tcp://dev.rightech.io:1883"
+    private val client = MqttClient(brokerUrl, "temperature_object").apply {
         connect(MqttConnectOptions().apply { isCleanSession = true })
 
         setCallback(
