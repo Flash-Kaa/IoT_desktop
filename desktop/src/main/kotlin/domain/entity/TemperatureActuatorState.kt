@@ -8,7 +8,7 @@ enum class TemperatureActuatorState {
         // Deserialize by name
         fun deserialize(str: String?): TemperatureActuatorState? {
             TemperatureActuatorState.entries.forEach {
-                if (it.name == str) return it
+                if (it.name == str?.dropWhile { !it.isLetter() }?.dropLastWhile { !it.isLetter() }) return it
             }
 
             return null
